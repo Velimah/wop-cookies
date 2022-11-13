@@ -5,14 +5,19 @@ const cookieParser = require('cookie-parser');
 const app = express();
 const port = 3000;
 
-app.use(express.urlencoded({extended:false}));
+app.use(express.urlencoded({extended: false}));
 app.use(express.json());
 
 const username = 'foo';
 const password = 'bar';
 
 app.use(cookieParser());
-app.use(session({secret: 'dfgdrdsdfes'}));
+app.use(session({
+  secret: 'dfgdrdsdfes',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {maxAge: 60 * 60 * 24},
+}));
 
 app.set('views', './views');
 app.set('view engine', 'pug');
@@ -26,7 +31,7 @@ app.get('/form', (req, res) => {
 });
 
 app.get('/secret', (req, res) => {
-  if(req.session.kirjautunut) {
+  if (req.session.kirjautunut) {
     res.render('secret');
   } else {
     res.redirect('/form');
@@ -36,10 +41,10 @@ app.get('/secret', (req, res) => {
 app.post('/login', (req, res) => {
   const uname = req.body.username;
   const passwd = req.body.password;
-  if(uname === username && passwd === password) {
+  if (uname === username && passwd === password) {
     req.session.kirjautunut = true;
     res.redirect('/secret');
-  }  else {
+  } else {
     res.redirect('/form');
   }
 });
